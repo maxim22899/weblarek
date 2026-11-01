@@ -14,7 +14,7 @@ console.log("Товары в каталоге:", catalog.getItems());
 console.log("Один товар по id:", catalog.getItem(apiProducts.items[0].id));
 
 catalog.setPreview(apiProducts.items[0]);
-console.log('Товар для превью:', catalog.getPreview());
+console.log("Товар для превью:", catalog.getPreview());
 
 const basket = new Basket();
 basket.addItem(apiProducts.items[0]);
@@ -22,7 +22,10 @@ basket.addItem(apiProducts.items[1]);
 console.log("Товары в корзине:", basket.getItems());
 console.log("Общая стоимость:", basket.getTotalPrice());
 console.log("Количество товаров:", basket.getCount());
-console.log("Есть ли товар в корзине?", basket.hasItem(apiProducts.items[0].id),);
+console.log(
+  "Есть ли товар в корзине?",
+  basket.hasItem(apiProducts.items[0].id),
+);
 
 basket.removeItem(apiProducts.items[0].id);
 console.log("После удаления первого товара:", basket.getItems());
@@ -34,11 +37,11 @@ buyer.setData({ email: "test@test.ru" });
 console.log("Данные покупателя:", buyer.getData());
 console.log("Ошибки валидации:", buyer.validate());
 
-buyer.setData ({
-    payment: "card",
-    email: "test@test.ru",
-    phone: "test",
-    address: "test"
+buyer.setData({
+  payment: "card",
+  email: "test@test.ru",
+  phone: "test",
+  address: "test",
 });
 
 console.log("Полные данные:", buyer.getData());
