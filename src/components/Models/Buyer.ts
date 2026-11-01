@@ -1,4 +1,4 @@
-import { IBuyer } from "../../types";
+import { IBuyer, TBuyerErrors } from "../../types";
 
 export class Buyer {
   private data: IBuyer = {
@@ -25,13 +25,13 @@ export class Buyer {
     };
   }
 
-  validate(): Partial<Record<keyof IBuyer, string>> {
-    const errors: Partial<Record<keyof IBuyer, string>> = {};
+  validate(): TBuyerErrors {
+    const errors: TBuyerErrors = {};
 
     if (!this.data.payment) errors.payment = "Не выбран вид оплаты";
-    if (!this.data.email) errors.email = "Укажите email";
-    if (!this.data.phone) errors.phone = "Укажите телефон";
-    if (!this.data.address) errors.address = "Укажите адрес";
+    if (!this.data.email.trim()) errors.email = "Укажите email";
+    if (!this.data.phone.trim()) errors.phone = "Укажите телефон";
+    if (!this.data.address.trim()) errors.address = "Укажите адрес";
 
     return errors;
   }

@@ -1,18 +1,13 @@
 import { IApi, IOrder, IOrderResult, IProductsResponse } from "../../types";
-import { API_URL } from "../../utils/constants";
 
 export class LarekApi {
-  private api: IApi;
-
-  constructor(api: IApi) {
-    this.api = api;
-  }
-
+    constructor(private api: IApi) {}
+  
   getProducts(): Promise<IProductsResponse> {
-    return this.api.get<IProductsResponse>(`${API_URL}/product/`);
+    return this.api.get<IProductsResponse>(`/product/`);
   }
 
   postOrder(order: IOrder): Promise<IOrderResult> {
-    return this.api.post<IOrderResult>(`${API_URL}/order/`, order);
+    return this.api.post<IOrderResult>(`/order/`, order);
   }
 }
