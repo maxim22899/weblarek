@@ -15,14 +15,17 @@ export class OrderForm extends Form<IBuyer> {
         this.cashButton = ensureElement<HTMLButtonElement>('button[name="cash"]', this.container);
         this.addressInput = ensureElement<HTMLInputElement>('input[name="address"]', this.container);
 
-        this.cardButton.addEventListener('click', (e) => {
-            e.preventDefault();
+        this.cardButton.addEventListener('click', () => {
             this.events.emit('form:change', { field: 'payment', value: 'card' });
         });
         
-        this.cashButton.addEventListener('click', (e) => {
-            e.preventDefault();
+        this.cashButton.addEventListener('click', () => {
             this.events.emit('form:change', { field: 'payment', value: 'cash' });
+        });
+
+        this.container.addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.events.emit('order:submit');
         });
     }
 

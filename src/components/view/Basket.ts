@@ -1,5 +1,6 @@
-import { ensureElement } from "../../utils/utils";
-import { Component } from "../base/Component";
+import { ensureElement } from '../../utils/utils';
+import { Component } from '../base/Component';
+import { IEvents } from '../base/Events';
 
 interface IBasketData {
     items: HTMLElement[];
@@ -11,26 +12,26 @@ export class Basket extends Component<IBasketData> {
     protected totalElement: HTMLElement;
     protected orderButton: HTMLButtonElement;
 
-    constructor(container: HTMLElement, onOrder: () => void) {
+    constructor(protected events: IEvents, container: HTMLElement) {
         super(container);
         this.listElement = ensureElement<HTMLElement>('.basket__list', this.container);
         this.totalElement = ensureElement<HTMLElement>('.basket__price', this.container);
         this.orderButton = ensureElement<HTMLButtonElement>('.basket__button', this.container);
 
-        this.orderButton.addEventListener('click', onOrder);
+        this.orderButton.addEventListener('click', () => {
+            this.events.emit('basket:order');
+        });
     }
 
     set items(items: HTMLElement[]) {
-        if (items.length === 0) {
-            this.listElement.innerHTML = '<p style="text-align: center">Корзина пуста</p>';
-            this.orderButton.disabled = true;
-        } else {
-            this.listElement.replaceChildren(...items);
-            this.orderButton.disabled = false;
-        }    
-    }   
+        this.listElement.replaceChildren(...items);
+    }
 
     set total(value: number) {
         this.totalElement.textContent = `${value} синапсов`;
+    }
+
+    set buttonDisabled(value: boolean) {
+        this.orderButton.disabled = value;
     }
 }

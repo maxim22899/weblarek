@@ -203,78 +203,184 @@ Presenter - презентер содержит основную логику п
 
 ## Слой представления (View)
 
-### Класс Header
+Классы представления отвечают за отображение данных на странице. Они только уведомляют Презентер о действиях пользователя с помощью генерации событий. Все классы наследуются от базового `Component<T>`.
 
-Назначение: отображает шапку сайта с логотипом, кнопкой корзины и счетчиком.
+### Класс Header (Шапка)
 
-Данные: `counter: number`.
+Назначение: Отображает шапку сайта с логотипом, кнопкой корзины и счетчиком.
+
+Конструктор:
+- `constructor(events: IEvents, container: HTMLElement)` — принимает брокер событий и корневой DOM-элемент.
+
+Поля:
+- `counterElement: HTMLElement` — элемент для отображения счетчика.
+- `basketButton: HTMLButtonElement` — кнопка открытия корзины.
+
+Сеттеры:
+- `set counter(value: number): void` — обновляет текст счетчика.
 
 События: генерирует `basket:open` при клике на кнопку корзины.
 
-### Класс Gallery
+### Класс Gallery (Каталог)
 
-Назначение: отображет каталог карточек товаров на главной странице.
+Назначение: Отображает каталог карточек товаров на главной странице.
 
-Данные: `catalog: HTMLElement[]`.
+Конструктор:
+- `constructor(container: HTMLElement)` — принимает корневой DOM-элемент.
 
-### Класс Modal
+Поля:
+- `catalogElement: HTMLElement` — контейнер для карточек товаров.
 
-Назначение: управляет показом и скрытием модальног оокна.
+Сеттеры:
+- `set catalog(items: HTMLElement[]): void` — вставляет массив карточек в каталог.
 
-Методы: `open(content: HTMLElement)`, `close()`.
+### Класс Modal (Модальное окно)
 
-События: генерирует `modal:close`.
+Назначение: Управляет показом и скрытием модального окна. Не имеет дочерних классов.
+
+Конструктор:
+- `constructor(events: IEvents, container: HTMLElement)` — принимает брокер событий и корневой DOM-элемент.
+
+Поля:
+- `closeButton: HTMLButtonElement` — кнопка закрытия.
+- `contentElement: HTMLElement` — контейнер для контента.
+
+Методы:
+- `open(content: HTMLElement): void` — открывает окно с переданным контентом.
+- `close(): void` — закрывает окно и очищает контент.
+
+События: генерирует `modal:close` при клике на крестик или фон.
 
 ### Базовый класс Card
 
-Назначение: общий предок для всех карточек товара.
+Назначение: Общий предок для всех карточек товара.
+
+Конструктор:
+- `constructor(container: HTMLElement)` — принимает корневой DOM-элемент.
+
+Поля:
+- `titleElement: HTMLElement` — элемент названия.
+- `priceElement: HTMLElement` — элемент цены.
+
+Сеттеры:
+- `set title(value: string): void` — устанавливает название.
+- `set price(value: number | null): void` — устанавливает цену (если `null`, пишет «Бесценно»).
 
 ### Класс CardCatalog (наследуется от Card)
 
-Назначение: карточка товара в каталоге
+Назначение: Карточка товара в каталоге.
+
+Конструктор:
+- `constructor(container: HTMLElement, onClick: () => void)` — принимает контейнер и колбэк для клика.
+
+Сеттеры:
+- `set category(value: string): void` — устанавливает категорию и добавляет CSS-класс.
+- `set image(value: string): void` — устанавливает картинку.
 
 События: генерирует `card:select` при клике на карточку.
 
 ### Класс CardPreview (наследуется от Card)
 
-Назаначение: Подробная карточка товара в модальном окне.
+Назначение: Подробная карточка товара в модальном окне.
 
-События: генерирует `card:buy` или `card:remove` при клике на кнопку. 
+Конструктор:
+- `constructor(container: HTMLElement, onBuy: () => void)` — принимает контейнер и колбэк для кнопки.
 
-### Класс CardBasket (насдедуется от Card) 
+Сеттеры:
+- `set category(value: string): void` — устанавливает категорию.
+- `set image(value: string): void` — устанавливает картинку.
+- `set description(value: string): void` — устанавливает описание.
+- `set buttonText(value: string): void` — устанавливает текст кнопки.
+- `set buttonDisabled(value: boolean): void` — блокирует/разблокирует кнопку.
 
-Назначение: карточка товара в корзине.
+События: генерирует `card:buy` или `card:remove` при клике на кнопку.
+
+### Класс CardBasket (наследуется от Card)
+
+Назначение: Карточка товара в корзине.
+
+Конструктор:
+- `constructor(container: HTMLElement, onDelete: () => void)` — принимает контейнер и колбэк удаления.
+
+Сеттеры:
+- `set index(value: number): void` — устанавливает порядковый номер.
 
 События: генерирует `basket:remove` при клике на кнопку удаления.
 
-### Класс Basket 
+### Класс Basket (Корзина)
 
-Назначеине: отображение списка товаров в корзине и общей суммы.
+Назначение: Отображение списка товаров в корзине и общей суммы.
 
-Данные: `items: HTMLElement[]`, `total: number`.
+Конструктор:
+- `constructor(events: IEvents, container: HTMLElement)` — принимает брокер событий и контейнер.
 
-События: генерирует `basket:order`.
+Поля:
+- `listElement: HTMLElement` — список товаров.
+- `totalElement: HTMLElement` — элемент суммы.
+- `orderButton: HTMLButtonElement` — кнопка оформления.
+
+Сеттеры:
+- `set items(items: HTMLElement[]): void` — заменяет список товаров.
+- `set total(value: number): void` — устанавливает сумму.
+- `set buttonDisabled(value: boolean): void` — блокирует кнопку.
+
+События: генерирует `basket:order` при клике на кнопку «Оформить».
 
 ### Базовый класс Form<T>
 
-Назначение: общий порядок для форм. Отвечает за валидацию, ввод данных и блокировку кнопок.
+Назначение: Общий предок для форм. Отвечает за валидацию, ввод данных и блокировку кнопок.
 
-События: генерирует `form:change` при вводе.
+Конструктор:
+- `constructor(events: IEvents, container: HTMLFormElement)` — принимает брокер и контейнер формы.
 
-### Класс OrderForm (наследуется от Form) 
+Поля:
+- `submitButton: HTMLButtonElement` — кнопка отправки.
+- `errorsElement: HTMLElement` — элемент для вывода ошибок.
+
+Сеттеры:
+- `set valid(value: boolean): void` — управляет доступностью кнопки.
+- `set errors(value: string): void` — выводит текст ошибки.
+
+События: генерирует `form:change` при вводе и `form:submit` при отправке.
+
+### Класс OrderForm (наследуется от Form)
 
 Назначение: Первая форма оформления (оплата и адрес).
 
-События: генерирует `order:submit`.
+Конструктор:
+- `constructor(container: HTMLFormElement, events: IEvents)` — принимает контейнер и брокер.
+
+Сеттеры:
+- `set payment(value: string): void` — подсвечивает выбранный способ оплаты.
+- `set address(value: string): void` — вводит адрес в поле.
+
+События: генерирует `order:submit` при нажатии «Далее».
 
 ### Класс ContactsForm (наследуется от Form)
 
-Назначение: вторая форма оформления (почта и телефоон).
+Назначение: Вторая форма оформления (почта и телефон).
 
-События: генерирует `contacts:submit`.
+Конструктор:
+- `constructor(container: HTMLFormElement, events: IEvents)` — принимает контейнер и брокер.
 
-### Класс Success
+Сеттеры:
+- `set email(value: string): void` — вводит email.
+- `set phone(value: string): void` — вводит телефон.
 
-Назначение: окно с сообщением об успешной оплате.
+События: генерирует `contacts:submit` при нажатии «Оплатить».
 
-События: генерирует `success:close`.
+### Класс Success (Успешный заказ)
+
+Назначение: Окно с сообщением об успешной оплате.
+
+Конструктор:
+- `constructor(container: HTMLElement, events: IEvents)` — принимает контейнер и брокер.
+
+Поля:
+- `totalElement: HTMLElement` — элемент списанной суммы.
+- `closeButton: HTMLButtonElement` — кнопка закрытия.
+
+Сеттеры:
+- `set total(value: number): void` — выводит сумму.
+
+События: генерирует `success:close` при клике на кнопку закрытия.
