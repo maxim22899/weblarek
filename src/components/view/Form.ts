@@ -15,13 +15,7 @@ export class Form<T> extends Component<T> {
             const target = e.target as HTMLInputElement;
             this.events.emit(`form:change`, { field: target.name, value: target.value });
         });
-
-        this.container.addEventListener('submit', (e: Event) => {
-            e.preventDefault();
-            this.events.emit('form:submit');
-        });
-
-        this.valid = false;
+        
     }
 
     set valid(value: boolean) {
@@ -31,4 +25,4 @@ export class Form<T> extends Component<T> {
     set errors(value: string) {
         this.errorsElement.textContent = value;
     }
-} 
+}

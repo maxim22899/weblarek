@@ -88,11 +88,13 @@ events.on('preview:changed', () => {
         cardPreview.buttonDisabled = false;
     }
 
-    modal.open(cardPreview.render({ 
-        category: item.category,
-        description: item.description,
-        image: `${CDN_URL}/${item.image}` 
-    }));
+    modal.open(cardPreview.render({
+    title: item.title,
+    price: item.price,
+    category: item.category,
+    description: item.description,
+    image: `${CDN_URL}/${item.image}`,
+}));
 });
 
 events.on('card:action', () => {
@@ -111,10 +113,11 @@ events.on('basket:changed', () => {
     header.counter = basketModel.getCount();
 
     const items = basketModel.getItems().map((item, index) => {
-        const card = new CardBasket(cardBasketTemplate.content.firstElementChild!.cloneNode(true) as HTMLElement, events);
+        const card = new CardBasket(cardBasketTemplate.content.firstElementChild!.cloneNode(true) as HTMLElement, () => {
+            events.emit('basketCard:action', { id: item.id });
+        });
         
         card.index = index + 1;
-        card.id = item.id; 
         
         return card.render({ 
             title: item.title, 
@@ -127,33 +130,25 @@ events.on('basket:changed', () => {
     basketView.buttonDisabled = items.length === 0;
 });
 
-events.on('basket:remove', (data: { id: string }) => {
+events.on('basketCard:action', (data: { id: string }) => {
     basketModel.removeItem(data.id);
 });
 
 events.on('basket:order', () => {
-    events.emit('order:open');
+    const buyerData = buyerModel.getData();
+    const errors = buyerModel.validate();
+    orderForm.payment = buyerData.payment;
+    orderForm.address = buyerData.address;
+    orderForm.valid = !errors.payment && !errors.address;
+    orderForm.errors = [errors.payment, errors.address].filter(Boolean).join('. ');
+
+    modal.open(orderForm.render());
 });
 
 events.on('basket:open', () => {
     modal.open(basketView.render());
 });
 
-events.on('order:open', () => {
-    const buyerData = buyerModel.getData();
-    const errors = buyerModel.validate();
-    
-    orderForm.payment = buyerData.payment;
-    orderForm.address = buyerData.address;
-    orderForm.valid = !errors.payment && !errors.address;
-    
-    const orderErrors = [];
-    if (errors.payment) orderErrors.push('Не выбран вид оплаты');
-    if (errors.address) orderErrors.push('Необходимо указать адрес');
-    orderForm.errors = orderErrors.join('. ');
-
-    modal.open(orderForm.render(buyerData));
-});
 
 events.on('form:change', (data: { field: keyof IBuyer, value: string }) => {
     buyerModel.setData({ [data.field]: data.value });
@@ -183,35 +178,18 @@ events.on('buyer:changed', () => {
 });
 
 events.on('order:submit', () => {
-    const errors = buyerModel.validate();
-    if (errors.payment || errors.address) return;
-
-    const buyerData = buyerModel.getData();
-    const contactErrors = [];
-    if (errors.email) contactErrors.push('Необходимо указать email');
-    if (errors.phone) contactErrors.push('Необходимо указать телефон');
-
-    contactsForm.email = buyerData.email;
-    contactsForm.phone = buyerData.phone;
-    contactsForm.valid = !errors.email && !errors.phone;
-    contactsForm.errors = contactErrors.join('. ');
-
-    modal.open(contactsForm.render(buyerData));
+    modal.open(contactsForm.render());
 });
 
 events.on('contacts:submit', () => {
-    const errors = buyerModel.validate();
-    
-    if (errors.email || errors.phone) return;
-
     const orderData = {
         ...buyerModel.getData(),
         total: basketModel.getTotalPrice(),
-        items: basketModel.getItems().map(item => item.id)
+        items: basketModel.getItems().map(item => item.id),
     };
-    
-    larekApi.postOrder(orderData) 
-        .then((response) => {
+
+    larekApi.postOrder(orderData)
+        .then(response => {
             basketModel.clear();
             buyerModel.clear();
             modal.open(successView.render({ total: response.total }));
@@ -226,6 +204,8 @@ events.on('success:close', () => {
     modal.close();
 });
 
+basketModel.clear();
+buyerModel.clear();
 
 larekApi.getProducts()
     .then((data) => {
